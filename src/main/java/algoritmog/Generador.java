@@ -13,69 +13,70 @@ public class Generador {
 
         Random rn = new Random();
 
-        Generador demo = new Generador();
+        Generador generador = new Generador();
 
-        //Initialize population
-        demo.population.initializePopulation(10);
+        //Inicializar población
+        generador.population.initializePopulation(10);
 
-        //Calculate fitness of each individual
-        demo.population.calculateFitness();
+        //Calcular la aptitud de cada individuo
+        generador.population.calculateFitness();
 
-        System.out.println("Generation: " + demo.generationCount + " Fittest: " + demo.population.fittest);
+        System.out.println("Generación: " + generador.generationCount + " Apto: " + generador.population.fittest);
 
-        //While population gets an individual with maximum fitness
-        while (demo.population.fittest < 5) {
-            ++demo.generationCount;
+        //Ciclo para obtener el individuo mas apto
+        while (generador.population.fittest < 5) {
+            ++generador.generationCount;
 
-            //Do selection
-            demo.selection();
+            //Seleccionar
+            generador.selection();
 
-            //Do crossover
-            demo.crossover();
+            //Cruzar
+            generador.crossover();
 
-            //Do mutation under a random probability
+            //Hacer mutación bajo una probabilidad aleatoria
             if (rn.nextInt()%7 < 5) {
-                demo.mutation();
+                generador.mutation();
             }
 
-            //Add fittest offspring to population
-            demo.addFittestOffspring();
+            //Añadir descendientes más aptos a la población
+            generador.addFittestOffspring();
 
-            //Calculate new fitness value
-            demo.population.calculateFitness();
+            //Calcular nuevos valores
+            generador.population.calculateFitness();
 
-            System.out.println("Generation: " + demo.generationCount + " Fittest: " + demo.population.fittest);
+            System.out.println("Generación: " + generador.generationCount + " Apto: " + generador.population.fittest);
         }
 
-        System.out.println("\nSolution found in generation " + demo.generationCount);
-        System.out.println("Fitness: "+demo.population.getFittest().fitness);
+        System.out.println("\nSolución encontrada en generación" + generador.generationCount);
+        System.out.println("Apto: "+generador.population.getFittest().fitness);
         System.out.print("Genes: ");
         for (int i = 0; i < 5; i++) {
-            System.out.print(demo.population.getFittest().genes[i]);
+            System.out.print(generador.population.getFittest().genes[i]);
         }
 
         System.out.println("");
 
     }
 
-    //Selection
+    //Selección
     void selection() {
 
-        //Select the most fittest individual
+        //Seleccionar al individuo más apto
         fittest = population.getFittest();
 
-        //Select the second most fittest individual
+        //Seleccione el segundo individuo más apto
         secondFittest = population.getSecondFittest();
     }
 
-    //Crossover
+    //Cruce
     void crossover() {
         Random rn = new Random();
 
-        //Select a random crossover point
+        //Seleccione un punto de cruce aleatorio
         int crossOverPoint = rn.nextInt(population.individuals[0].geneLength);
 
-        //Swap values among parents
+
+        //Intercambio de valores entre padres
         for (int i = 0; i < crossOverPoint; i++) {
             int temp = fittest.genes[i];
             fittest.genes[i] = secondFittest.genes[i];
@@ -85,14 +86,14 @@ public class Generador {
 
     }
 
-    //Mutation
+    //Mutación
     void mutation() {
         Random rn = new Random();
 
-        //Select a random mutation point
+        //Seleccione un punto de mutación aleatorio
         int mutationPoint = rn.nextInt(population.individuals[0].geneLength);
 
-        //Flip values at the mutation point
+        //Intercambiar valores
         if (fittest.genes[mutationPoint] == 0) {
             fittest.genes[mutationPoint] = 1;
         } else {
@@ -108,7 +109,7 @@ public class Generador {
         }
     }
 
-    //Get fittest offspring
+    //Obtener el descendiente mas apto
     Individual getFittestOffspring() {
         if (fittest.fitness > secondFittest.fitness) {
             return fittest;
@@ -117,7 +118,7 @@ public class Generador {
     }
 
 
-    //Replace least fittest individual from most fittest offspring
+    //Reemplazar al individuo menos apto de los descendientes más aptos
     void addFittestOffspring() {
 
         //Update fitness values of offspring
