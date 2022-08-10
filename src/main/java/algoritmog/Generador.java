@@ -1,8 +1,10 @@
 package algoritmog;
 
+import java.util.Arrays;
 import java.util.Random;
 
 public class Generador {
+
 
     Population population = new Population();
     Individual fittest;
@@ -21,7 +23,7 @@ public class Generador {
         //Calcular la aptitud de cada individuo
         generador.population.calculateFitness();
 
-        System.out.println("Generación: " + generador.generationCount + " Apto: " + generador.population.fittest);
+        System.out.println("Ciclo: " + generador.generationCount + " Maxima Aptitud: " + generador.population.fittest);
 
         //Ciclo para obtener el individuo mas apto
         while (generador.population.fittest < 5) {
@@ -44,15 +46,13 @@ public class Generador {
             //Calcular nuevos valores
             generador.population.calculateFitness();
 
-            System.out.println("Generación: " + generador.generationCount + " Apto: " + generador.population.fittest);
+            System.out.println("Ciclo: " + generador.generationCount + " Maxima Aptitud: " + generador.population.fittest);
         }
 
-        System.out.println("\nSolución encontrada en generación" + generador.generationCount);
-        System.out.println("Apto: "+generador.population.getFittest().fitness);
-        System.out.print("Genes: ");
-        for (int i = 0; i < 5; i++) {
-            System.out.print(generador.population.getFittest().genes[i]);
-        }
+        System.out.println("\nSolucion encontrada en Ciclo " + generador.generationCount);
+        System.out.println("Maxima Aptitud: "+generador.population.getFittest().fitness);
+
+        System.out.println("Genes del mas Apto"+ Arrays.toString(generador.population.getFittest().genes));
 
         System.out.println("");
 
@@ -65,13 +65,12 @@ public class Generador {
         fittest = population.getFittest();
 
         //Seleccione el segundo individuo más apto
-        secondFittest = population.getSecondFittest();
+        secondFittest = population.getSecondFittest(fittest.i);
     }
 
     //Cruce
     void crossover() {
         Random rn = new Random();
-
         //Seleccione un punto de cruce aleatorio
         int crossOverPoint = rn.nextInt(population.individuals[0].geneLength);
 
@@ -83,6 +82,8 @@ public class Generador {
             secondFittest.genes[i] = temp;
 
         }
+        System.out.println("Cruzar padres");
+
 
     }
 
@@ -107,6 +108,8 @@ public class Generador {
         } else {
             secondFittest.genes[mutationPoint] = 0;
         }
+        System.out.println("Mutacion aleatoria");
+
     }
 
     //Obtener el descendiente mas apto
@@ -121,14 +124,14 @@ public class Generador {
     //Reemplazar al individuo menos apto de los descendientes más aptos
     void addFittestOffspring() {
 
-        //Update fitness values of offspring
+        //Actualizar los valores de Aptitud de la descendencia
         fittest.calcFitness();
         secondFittest.calcFitness();
 
-        //Get index of least fit individual
+        //Obtener el índice del individuo menos apto
         int leastFittestIndex = population.getLeastFittestIndex();
 
-        //Replace least fittest individual from most fittest offspring
+        //Reemplazar al individuo menos apto de los descendientes más aptos
         population.individuals[leastFittestIndex] = getFittestOffspring();
     }
 
@@ -141,11 +144,11 @@ class Individual implements Cloneable{
     int fitness = 0;
     int[] genes = new int[5];
     int geneLength = 5;
-
+    int i = 0;
     public Individual() {
         Random rn = new Random();
 
-        //Set genes randomly for each individual
+        //Establecer genes al azar para cada individuo
         for (int i = 0; i < genes.length; i++) {
             genes[i] = Math.abs(rn.nextInt() % 2);
         }
@@ -183,11 +186,17 @@ class Population {
     Individual[] individuals = new Individual[10];
     int fittest = 0;
 
-    //Initialize population
+    //Inicializar poblacion
     public void initializePopulation(int size) {
+        System.out.println("Inicializacion de Poblacion");
+
         for (int i = 0; i < individuals.length; i++) {
             individuals[i] = new Individual();
+            individuals[i].i = i;
+            System.out.println("Individuo "+i+" Cromosomas: "+ Arrays.toString(individuals[i].genes));
+
         }
+
     }
 
     //Get the fittest individual
@@ -201,6 +210,8 @@ class Population {
             }
         }
         fittest = individuals[maxFitIndex].fitness;
+        System.out.println("Individuo "+maxFitIndex+" con mayor Aptitud Cromosomas: "+ Arrays.toString(individuals[maxFitIndex].genes));
+
         try {
             return (Individual) individuals[maxFitIndex].clone();
         } catch (CloneNotSupportedException e) {
@@ -210,19 +221,19 @@ class Population {
     }
 
     //Get the second most fittest individual
-    public Individual getSecondFittest() {
-        int maxFit1 = 0;
-        int maxFit2 = 0;
+    public Individual getSecondFittest(int j) {
+        int maxFit = Integer.MIN_VALUE;
+        int maxFitIndex = 0;
         for (int i = 0; i < individuals.length; i++) {
-            if (individuals[i].fitness > individuals[maxFit1].fitness) {
-                maxFit2 = maxFit1;
-                maxFit1 = i;
-            } else if (individuals[i].fitness > individuals[maxFit2].fitness) {
-                maxFit2 = i;
+            if (maxFit <= individuals[i].fitness && i!=j) {
+                maxFit = individuals[i].fitness;
+                maxFitIndex = i;
             }
         }
+        System.out.println("Individuo "+maxFit+" con segunda mayor Aptitud Cromosomas: "+ Arrays.toString(individuals[maxFit].genes));
+
         try {
-            return (Individual) individuals[maxFit2].clone();
+            return (Individual) individuals[maxFit].clone();
         } catch (CloneNotSupportedException e) {
             e.printStackTrace();
         }
@@ -244,9 +255,11 @@ class Population {
 
     //Calculate fitness of each individual
     public void calculateFitness() {
+        System.out.println("Calculo de Aptitudes ");
 
         for (int i = 0; i < individuals.length; i++) {
             individuals[i].calcFitness();
+            System.out.println("Individuo "+i+" "+ Arrays.toString(individuals[i].genes) +" Aptitud: "+ individuals[i].fitness);
         }
         getFittest();
     }
